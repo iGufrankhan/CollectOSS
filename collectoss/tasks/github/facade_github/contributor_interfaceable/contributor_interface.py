@@ -186,7 +186,7 @@ def insert_alias(logger, contributor, email):
     alias_clean = clean_dict(alias)
 
     # Insert new alias
-    bulk_insert_dicts(logger, alias_clean, ContributorsAlias, ['alias_email'])
+    bulk_insert_dicts(logger, alias_clean, ContributorsAlias, ['cntrb_id','alias_email'])
 
     return
 
