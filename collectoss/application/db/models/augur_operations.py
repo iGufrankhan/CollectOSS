@@ -1077,8 +1077,8 @@ class ForgeInstance(Base):
     __table_args__ = { "schema": "augur_operations" }
 
     id = Column(Integer, primary_key=True, nullable=False, comment="Internal unique identifier for this forge instance")
-    # platform_type stores an integer that CollectOSS maps/will map to it's internal platform 
-    # identifer Enum (as used in ContributorUUID) for identifying the API endpoints and tasks to use for collection
+    # platform_type stores an integer that CollectOSS maps/will map to it's internal platform identifier Enum 
+    # (as used in ContributorUUID) for identifying the API endpoints and tasks to use for collection
     platform_type = Column(Integer, nullable=False, comment="Type specifier identifying the relevant platform API interface to CollectOSS")
     name = Column(String, nullable=False, comment="User-specified name for this forge instance")
     # https://stackoverflow.com/a/54800233
