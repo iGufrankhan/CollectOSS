@@ -282,6 +282,10 @@ def badges_model(logger,repo_git,repo_id,db):
     #Hit cii api with no api key.
     response = hit_api(None, url, logger)
 
+    if not response:
+        logger.error(f"An error occurred fetching data from {url} in badges_model")
+        return 
+    
     try:
         response_data = response.json()
     except:
