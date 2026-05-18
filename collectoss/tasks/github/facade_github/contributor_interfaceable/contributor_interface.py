@@ -107,7 +107,7 @@ def request_dict_from_endpoint(logger, session, url, timeout_wait=10):
 
     return response_data
 
-
+@deprecated("Please use GithubDataAcess.endpoint_url() instead")
 def create_endpoint_from_email(email):
     # Note: I added "+type:user" to avoid having user owned organizations be returned
     # Also stopped splitting per note above.
@@ -117,7 +117,7 @@ def create_endpoint_from_email(email):
 
     return url
 
-
+@deprecated("Please use GithubDataAcess.endpoint_url() instead")
 def create_endpoint_from_commit_sha(logger, commit_sha, repo_id):
     logger.debug(
         f"Trying to create endpoint from commit hash: {commit_sha}")
