@@ -44,6 +44,25 @@ A script monitors the output logs and looks for specific log statements that ind
 Future end to end tests may also run CollectOSS to the point of fully collecting on some smaller repositories and validating that the database is as expected.
 
 
+Testing Standards 
+-----------------
+
+Different parts of the CollectOSS codebase are held to different standards when it comes to how thoroughly changes are expected to be tested/validated before being allowed to merge.
+
+An approximate, non-exhaustive list of the various levels of testing include:
+
+* **Code Review** - only a code review is needed to make sure things look okay (spelling/grammar, formatting etc). Typically used for README changes or changes to other simple, non-functional text files in the repo
+* **Sanity Check** - a simple, automated check, such as a build job, should be run to ensure that syntax is correct and that the changes aren't causing a build failure. Typically used for documentation (what you are reading now)
+* **Automated Functional Test** - A more complex automated check, such as unit tests, integration tests, E2E smoke tests, etc should be run to ensure that CollectOSS can at least start up successfully with the new code. Typically used for trivial changes to subcomponents that already have automated tests
+* **Manual Functional Test Procedure** - A set of pre-defined testing steps designed to exercise the specific code/problem being changed. This will usually be derived from the reproduction steps for the bug being solved or documented in the related issue/PR before testing so others can reproduce it. Typically used to test fixes for specific bugs
+* **Full Collection Test** - The change should be built and run on a small instance (with relevant repos being added to the collection set if necessary) and the instance should be allowed to run to full collection (all collection stages for all repos marked as "success" in the ``collection_status`` operations table). Typically used for basic/generalized behavior changes
+* **Difficult Repo Test** - Either the manual functional test or the full collection test can be made more "difficult" by including one or more known-difficult repositories, such as `chaoss/jank <https://github.com/chaoss/jank/>`_ (an artificial repo intended to contain a bunch of examples of problematic git data), or any other repo demonstrating a relevant and extreme/difficult scenario (huge overall size, huge commit count, 50-100k+ commits, etc). Typically used for parsing/performance tests
+* **Stress/Scale Test** - the change should be run on an instance (likely pre-existing) with at least 10k diverse repositories for at least one or more full cycles of the collection interval (about 1-2 weeks) to ensure that nothing breaks under load or other scaling-related conditions. Typically used for performance issues, bugs unique to large scale repos, and code thats important enough to require testing on a wide range of different repositories.
+
+Both the final merge decisions as well as decisions about which level of testing is appropriate for a given PR rests with the project maintainers.
+
+
+
 If you have questions about testing in CollectOSS or would like to help please reach out via the `CHAOSS Slack <https://chaoss.community/kb-getting-started/>`_ (in the #wg-collectoss-8knot channel) or open an issue on GitHub_.
 
 .. _GitHub: https://github.com/chaoss/collectoss/issues
