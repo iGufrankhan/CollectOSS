@@ -13,7 +13,7 @@ from collectoss.application.db.models import Config, Repo, Commit, WorkerOauth, 
 # TODO: CollectionState should be moved to augur/application/db/ to eliminate
 # this cross-layer dependency — same issue as the correction.py import above.
 from collectoss.tasks.util.collection_state import CollectionState
-from collectoss.db.timestamp_utils import correct_timestamp
+from collectoss.application.db.timestamp_utils import correct_timestamp
 from collectoss.application.db import get_session, get_engine
 from collectoss.application.db.util import execute_session_query, convert_type_of_value
 from collectoss.application.db.session import remove_duplicates_by_uniques, remove_null_characters_from_list_of_dicts

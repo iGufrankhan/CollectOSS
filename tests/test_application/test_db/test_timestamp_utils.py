@@ -7,7 +7,7 @@ timezone offsets in git commit timestamps before PostgreSQL insertion.
 
 import pytest
 import logging
-from augur.application.db.timestamp_utils import (
+from collectoss.application.db.timestamp_utils import (
     correct_timestamp,
     clean_commit_timestamps,
     POSTGRES_VALID_TIMEZONES
