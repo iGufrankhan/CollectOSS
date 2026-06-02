@@ -50,62 +50,6 @@ function get_github_api_key() {
     echo
 }
 
-function get_facade_repo_path() {
-
-    echo "The Facade data collection worker will clone repositories to this machine to run its analysis."
-    echo "Please select a new or existing directory for the Facade worker to use:"
-    echo
-
-    while true; do
-    
-
-        # if ! [ -w $facade_repo_directory/.git-credentials ]; then
-        #     echo "User $(whoami) does not have permission to write to that location"
-        #     echo "Please select another location"
-        #     continue
-        # fi
-
-        # Check if the file exists and create it if it doesn't
-        if [ ! -f "$facade_repo_directory/.git-credentials" ]; then
-            echo "File .git-credentials does not exist. Creating it..."
-            touch "$facade_repo_directory/.git-credentials"
-        fi
-
-        # Check for write permissions
-        if ! [ -w "$facade_repo_directory/.git-credentials" ]; then
-            echo "User $(whoami) does not have permission to write to $facade_repo_directory/.git-credentials"
-            echo "Please select another location"
-            continue
-        else
-            echo "Permission check passed for $facade_repo_directory/.git-credentials"
-        fi
-
-        if [[ -d "$facade_repo_directory" ]]; then
-            read -r -p "That directory already exists. Use it? [Y/n]: " facade_response
-            case "$facade_response" in
-            [nN][oO] | [nN])
-                continue
-                ;;
-            *)
-                break
-                ;;
-            esac
-        else
-            read -r -p "That directory does not exist. Create it? [Y/n]: " facade_response
-            case "$facade_response" in
-            [nN][oO] | [nN])
-                continue
-                ;;
-            *)
-                mkdir "$facade_repo_directory"
-                echo "Directory created."
-                break
-                ;;
-            esac
-        fi
-    done
-}
-
 function get_rabbitmq_broker_url() {
     echo
     echo "Please provide your rabbitmq broker url."
@@ -176,14 +120,6 @@ function create_config() {
     else
       cmd=( collectoss config init --github-api-key $github_api_key --gitlab-api-key $gitlab_api_key --facade-repo-directory $facade_repo_directory --rabbitmq-conn-string $rabbitmq_conn_string )
     fi
-
-    #Create and cache credentials for github and gitlab
-    touch $facade_repo_directory/.git-credentials
-
-    echo "https://$github_username:$github_api_key@github.com" > $facade_repo_directory/.git-credentials
-    echo "https://$gitlab_username:$gitlab_api_key@gitlab.com" >> $facade_repo_directory/.git-credentials
-
-    git config --global credential.helper "store --file $facade_repo_directory/.git-credentials"
     "${cmd[@]}"
 }
 echo

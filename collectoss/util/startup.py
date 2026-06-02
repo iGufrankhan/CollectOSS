@@ -2,8 +2,13 @@
 
 
 from pathlib import Path
-from collectoss.application.environment import SystemEnv
+import os
+import getpass
+import subprocess
 
+from sqlalchemy.orm.attributes import get_history
+from collectoss.application.environment import SystemEnv
+from typing_extensions import deprecated
 
 def check_init_schema():
     """Initialize the CollectOSS database schema as appropriate
@@ -84,3 +89,47 @@ def collect_env_variables(logger):
     if facade_repo_directory and not facade_repo_directory.endswith("/"):
         facade_repo_directory += "/"
         SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", facade_repo_directory)
+
+@deprecated("The bulk of this function is handling .git-credentials, which will be replaced with pygit2 (see issue #258)", category=None)
+def setup_facade_directory(logger):
+    """Perform permission checks and create the facade directory if it doesnt exist
+    """
+
+    facade_directory_path = SystemEnv.get("COLLECTOSS_FACADE_REPO_DIRECTORY") or "/collectoss/facade/"
+
+    facade_directory = Path(facade_directory_path)
+
+    if not facade_directory.exists():
+        logger.verbose(f"Specified facade directory {facade_directory_path} does not exist. Creating...")
+        facade_directory.mkdir()
+
+    git_credentials = facade_directory.joinpath(".git-credentials")
+    git_credentials.touch(exist_ok=True)
+
+    if not os.access(git_credentials, os.R_OK):
+        logger.error(f"User {getpass.getuser()} does not have permission to write to {git_credentials}. Please select another location")
+    else:
+        logger.verbose(f"Permission check passed for {git_credentials}")
+     
+
+    credentials = []
+
+    gh_names = ["COLLECTOSS_GITHUB_USERNAME","COLLECTOSS_GITHUB_API_KEY"]
+    gh_values = [SystemEnv.get(n) for n in gh_names]
+
+    if all(map(lambda p: p is not None, gh_values)):
+        user, key = gh_values
+        credentials.append(f"https://{user}:{key}@github.com")
+
+
+    gl_names = ["COLLECTOSS_GITLAB_USERNAME","COLLECTOSS_GITLAB_API_KEY"]
+    gl_values = [SystemEnv.get(n) for n in gl_names]
+
+    if all(map(lambda p: p is not None, gl_values)):
+        user, key = gl_values
+        credentials.append(f"https://{user}:{key}@gitlab.com")
+
+    with git_credentials.open(encoding="utf-8") as c:
+        c.writelines(credentials)
+    
+    subprocess.call(["git", "config", "--global", "credential.helper", "store", "--file", str(git_credentials)])
