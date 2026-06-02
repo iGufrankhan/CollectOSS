@@ -45,7 +45,7 @@ def collect_env_variables(logger):
     
     db_string = SystemEnv.get("COLLECTOSS_DB")
     if db_string and "localhost" in db_string:
-        SystemEnv.set("COLLECTOSS_DB", db_string.replace("127.0.0.1", "host.docker.internal"))
+        SystemEnv.set("COLLECTOSS_DB", db_string.replace("localhost", "host.docker.internal"))
     elif db_string and "127.0.0.1" in db_string:
         SystemEnv.set("COLLECTOSS_DB", db_string.replace("127.0.0.1", "host.docker.internal"))
 
