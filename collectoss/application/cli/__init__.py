@@ -71,7 +71,7 @@ def test_db_connection(function_db_connection):
 
             # determine the location to print in error string
             if db_environment_var:
-                location = f"the AUGUR_DB environment variable\nAUGUR_DB={SystemEnv.get('COLLECTOSS_DB')}"
+                location = f"the COLLECTOSS_DB environment variable\nCOLLECTOSS_DB={SystemEnv.get('COLLECTOSS_DB')}"
             else:
                 with open("db.config.json", 'r') as f:
                     db_config = json.load(f)

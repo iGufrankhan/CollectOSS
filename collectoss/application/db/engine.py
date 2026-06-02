@@ -75,7 +75,7 @@ def get_database_string() -> str:
 
     if not db_environment_var and not db_json_exists:
 
-        print("ERROR no way to get connection to the database. \n\t\t\t\t\t\t    There is no db.config.json and the AUGUR_DB environment variable is not set\n\t\t\t\t\t\t    Please run make install or set the AUGUR_DB environment then run make install")
+        print("ERROR no way to get connection to the database. \n\t\t\t\t\t\t    There is no db.config.json and the COLLECTOSS_DB environment variable is not set\n\t\t\t\t\t\t    Please run make install or set the COLLECTOSS_DB environment then run make install")
         sys.exit()
 
     if db_environment_var:
