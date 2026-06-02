@@ -154,7 +154,7 @@ class DummyFullWorker(ContributorInterfaceable):
         )
 
         self.db_schema = 'data'
-        self.helper_schema = 'collection_operations'
+        self.helper_schema = 'operations'
 
         self.helper_db = s.create_engine(DB_STR, poolclass=s.pool.NullPool,
                                          connect_args={'options': '-csearch_path={}'.format(self.helper_schema)})

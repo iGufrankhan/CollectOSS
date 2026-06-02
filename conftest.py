@@ -195,7 +195,7 @@ def read_only_db(empty_db):
     database_name = empty_db.url.database
     test_username = "testuser"
     test_password = "testpass"
-    schemas = ["public", "data", "collection_operations"]
+    schemas = ["public", "data", "operations"]
 
     # create read-only user
     empty_db.execute(s.text(f"CREATE USER testuser WITH PASSWORD '{test_password}';"))
