@@ -33,6 +33,8 @@ LABEL org.opencontainers.image.revision=${REVISION}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/usr/bin/:/usr/local/bin:/usr/lib:${PATH}"
 
+ENV COLLECTOSS_DOCKER_DEPLOY="1"
+
 RUN set -x \
     && apt-get update \
     && apt-get -y install --no-install-recommends \
