@@ -117,5 +117,4 @@ RUN ln -s /cache /collectoss/collectoss/static/cache
 COPY --chmod=755 ./docker/backend/entrypoint.sh /
 COPY --chmod=755 ./docker/backend/init.sh /
 RUN chmod +x /entrypoint.sh /init.sh
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 CMD ["/init.sh"]
