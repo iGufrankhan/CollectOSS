@@ -104,8 +104,6 @@ function get_facade_repo_path() {
             esac
         fi
     done
-
-    [[ "${facade_repo_directory}" != */ ]] && facade_repo_directory="${facade_repo_directory}/"
 }
 
 function get_rabbitmq_broker_url() {

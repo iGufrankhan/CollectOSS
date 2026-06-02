@@ -62,3 +62,9 @@ def collect_env_variables(logger):
     else:
         # Check if the path is resolveable/make it absolute
         SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", str(Path(facade_repo_directory).resolve(strict=True)))
+
+    # ensure trailing slash is present
+    facade_repo_directory = SystemEnv.get("COLLECTOSS_FACADE_REPO_DIRECTORY")
+    if facade_repo_directory and not facade_repo_directory.endswith("/"):
+        facade_repo_directory += "/"
+        SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", facade_repo_directory)
