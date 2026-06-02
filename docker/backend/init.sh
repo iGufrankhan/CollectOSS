@@ -2,11 +2,6 @@
 #SPDX-License-Identifier: MIT
 set -e
 
-
-if [ ! -v AUGUR_NO_CONFIG ]; then
-	./scripts/docker/config.sh docker
-fi
-
 if [[ -f /repo_groups.csv ]]; then
     collectoss db add-repo-groups /repo_groups.csv
 fi
