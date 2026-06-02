@@ -54,3 +54,7 @@ def collect_env_variables(logger):
     if SystemEnv.get("COLLECTOSS_GITLAB_USERNAME") is None:
         SystemEnv.set("COLLECTOSS_GITLAB_USERNAME", "fake")
 
+    # provide a default value for the facade repo directory (assumes docker paths)
+    facade_repo_directory = SystemEnv.get("COLLECTOSS_FACADE_REPO_DIRECTORY")
+    if facade_repo_directory is None:
+        SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", "/collectoss/facade/")
