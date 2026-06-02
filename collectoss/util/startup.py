@@ -1,6 +1,7 @@
 ## Startup helpers
 
 
+from pathlib import Path
 from collectoss.application.environment import SystemEnv
 
 
@@ -58,3 +59,6 @@ def collect_env_variables(logger):
     facade_repo_directory = SystemEnv.get("COLLECTOSS_FACADE_REPO_DIRECTORY")
     if facade_repo_directory is None:
         SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", "/collectoss/facade/")
+    else:
+        # Check if the path is resolveable/make it absolute
+        SystemEnv.set("COLLECTOSS_FACADE_REPO_DIRECTORY", str(Path(facade_repo_directory).resolve(strict=True)))

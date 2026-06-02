@@ -57,11 +57,7 @@ function get_facade_repo_path() {
     echo
 
     while true; do
-        read -e -p "Facade worker directory: " facade_repo_directory
-        blank_confirm facade_repo_directory
-
-        facade_repo_directory=$(realpath $facade_repo_directory)
-        echo
+    
 
         # if ! [ -w $facade_repo_directory/.git-credentials ]; then
         #     echo "User $(whoami) does not have permission to write to that location"
