@@ -40,12 +40,12 @@ def repo_messages(repo_group_id, repo_id=None, period='day', begin_date=None, en
                 COUNT ( * ),
                 repo_name 
             FROM
-                collection_data.repo,
-                collection_data.message 
+                data.repo,
+                data.message 
             WHERE
-                collection_data.repo.repo_id = collection_data.message.repo_id 
+                data.repo.repo_id = data.message.repo_id 
                 AND
-                collection_data.repo.repo_id = :repo_id 
+                data.repo.repo_id = :repo_id 
                 AND 
                 message.msg_timestamp BETWEEN :begin_date AND :end_date
             GROUP BY
@@ -69,14 +69,14 @@ def repo_messages(repo_group_id, repo_id=None, period='day', begin_date=None, en
                 COUNT ( * ),
                 rg_name 
             FROM
-                collection_data.repo,
-                collection_data.repo_groups,
-                collection_data.message 
+                data.repo,
+                data.repo_groups,
+                data.message 
             WHERE
-                collection_data.repo.repo_id = collection_data.message.repo_id 
-                AND collection_data.repo_groups.repo_group_id = repo.repo_group_id 
+                data.repo.repo_id = data.message.repo_id 
+                AND data.repo_groups.repo_group_id = repo.repo_group_id 
                 AND
-                collection_data.repo_groups.repo_group_id = :repo_group_id 
+                data.repo_groups.repo_group_id = :repo_group_id 
                 AND 
                 message.msg_timestamp BETWEEN :begin_date AND :end_date
             GROUP BY
