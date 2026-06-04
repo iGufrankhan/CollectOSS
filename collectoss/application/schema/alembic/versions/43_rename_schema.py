@@ -19,26 +19,26 @@ depends_on = None
 
 def upgrade() -> None:
     conn = op.get_bind() 
-    conn.execute(text("ALTER SCHEMA augur_data RENAME TO collection_data;"))
-    conn.execute(text("ALTER SCHEMA augur_operations RENAME TO collection_operations;"))
+    conn.execute(text("ALTER SCHEMA augur_data RENAME TO data;"))
+    conn.execute(text("ALTER SCHEMA augur_operations RENAME TO operations;"))
 
     op.create_table_comment(
         'repos_fetch_log',
-        'For future use when we move all working tables to the collection_operations schema. ',
+        'For future use when we move all working tables to the operations schema. ',
         existing_comment='For future use when we move all working tables to the augur_operations schema. ',
-        schema='collection_operations'
+        schema='operations'
     )
     op.create_table_comment(
         'worker_settings_facade',
-        'For future use when we move all working tables to the collection_operations schema. ',
+        'For future use when we move all working tables to the operations schema. ',
         existing_comment='For future use when we move all working tables to the augur_operations schema. ',
-        schema='collection_operations'
+        schema='operations'
     )
     op.create_table_comment(
         'working_commits',
-        'For future use when we move all working tables to the collection_operations schema. ',
+        'For future use when we move all working tables to the operations schema. ',
         existing_comment='For future use when we move all working tables to the augur_operations schema. ',
-        schema='collection_operations'
+        schema='operations'
     )
 
 
@@ -48,22 +48,22 @@ def downgrade() -> None:
     op.create_table_comment(
         'working_commits',
         'For future use when we move all working tables to the augur_operations schema. ',
-        existing_comment='For future use when we move all working tables to the collection_operations schema. ',
-        schema='collection_operations'
+        existing_comment='For future use when we move all working tables to the operations schema. ',
+        schema='operations'
     )
     op.create_table_comment(
         'worker_settings_facade',
         'For future use when we move all working tables to the augur_operations schema. ',
-        existing_comment='For future use when we move all working tables to the collection_operations schema. ',
-        schema='collection_operations'
+        existing_comment='For future use when we move all working tables to the operations schema. ',
+        schema='operations'
     )
     op.create_table_comment(
         'repos_fetch_log',
         'For future use when we move all working tables to the augur_operations schema. ',
-        existing_comment='For future use when we move all working tables to the collection_operations schema. ',
-        schema='collection_operations'
+        existing_comment='For future use when we move all working tables to the operations schema. ',
+        schema='operations'
     )
 
     conn = op.get_bind() 
-    conn.execute(text("ALTER SCHEMA collection_data RENAME TO augur_data;"))
-    conn.execute(text("ALTER SCHEMA collection_operations RENAME TO augur_operations;"))
+    conn.execute(text("ALTER SCHEMA data RENAME TO augur_data;"))
+    conn.execute(text("ALTER SCHEMA operations RENAME TO augur_operations;"))
