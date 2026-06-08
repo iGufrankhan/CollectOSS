@@ -19,8 +19,22 @@ If you are new to opening issues, we recommend [opensource.guide](https://openso
 > [!TIP]
 > Filling our our issue templates will help us gather all the necessary information to troubleshoot your issue efficiently. Issues that are missing details may take longer to be fixed.
 
+## Contribution Standards
 
-## Contributing to the source code
+In order to maintain a high level of code quality, we have certain standards of behavior and contribution quality we expect from all contributors and contributions (regardless of whether those changes were made by hand or with tools).
+
+- **Discuss first, then code.** Open an issue, leave a comment, or reach out on Slack before submitting a PR (especially if its your first time). This creates an opportunity to get early feedback on your plan from the maintainers and allows you to check if the task has been claimed by someone else, avoiding wasted effort on both sides.
+- **Maintain situational awareness of your code and take responsibility.** The power to make changes to code that other people use requires taking responsibility. As a rule of thumb, if you can't explain why your change works or aren't prepared to answer follow-up questions from maintainers during review, consider picking a different issue to solve or asking maintainers for resources to help you learn the relevant concepts or details about the codebase.
+- **Be honest and upfront.** Honesty, integrity, and trust are an important part of how we maintain the quality of our codebase. We require that the sources be cited when they are not written by the author of the PR. This includes, but is not limited to: citing Stack Overflow when you copy and paste code, correctly attributing co-authorship on commits that are made collaboratively, and completing the AI disclosure and DCO portions of the PR template truthfully.
+- **Respect others time.** Project maintainers and other contributors may be volunteering their time to review your work, please be courteous and respect their time. If you can't respond to something for a few days, just say so! If your proposed changes (or any comments about them) are too long for you to proofread, they're likely too long for maintainers to read and should be reorganized or made smaller if possible.
+- **Remember the human.** Remember that the humans who are helping build this project are on the other side of your issues, commments, and Slack messages. Your words and actions should remain respectful, even if you disagree. Using inflammatory or hateful language is not acceptable. Simply outsourcing your workload to an LLM and relaying the output back doesn't help anyone grow and doesn't sustain our community.
+
+
+Following these standards when you contribute will help your contributions get merged faster. If a maintainer determines your change to be in violation of one of these standards, you will be informed and given an opportunity to correct your PR.
+
+Repeat violations of these standards may result in the closure of your PRs, a ban from the project, referral for CHAOSS Code of Conduct violations, or other remedies deemed by the maintainers to be in the best interests of the overall health of the project. 
+
+## How to contribute to the source code
 We welcome pull requests from anyone!
 
 We follow the same GitHub workflow that most other projects on GitHub follow: Fork -> create a branch -> make a pull request -> repeat.
