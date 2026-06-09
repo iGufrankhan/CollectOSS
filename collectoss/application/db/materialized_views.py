@@ -63,7 +63,7 @@ class MaterializedView:
 _API_GET_ALL_REPO_PRS = """\
 SELECT pull_requests.repo_id,
     count(*) AS pull_requests_all_time
-FROM augur_data.pull_requests
+FROM data.pull_requests
 GROUP BY pull_requests.repo_id"""
 
 # ---------------------------------------------------------------------------
@@ -75,7 +75,7 @@ _ISSUE_REPORTER_CREATED_AT = """\
 SELECT i.reporter_id,
     i.created_at,
     i.repo_id
-   FROM augur_data.issues i
+   FROM data.issues i
   ORDER BY i.created_at"""
 
 # ---------------------------------------------------------------------------
@@ -86,8 +86,8 @@ SELECT DISTINCT r.repo_git,
     r.repo_id,
     r.repo_name,
     rg.rg_name
-FROM (augur_data.repo r
-  JOIN augur_data.repo_groups rg ON ((rg.repo_group_id = r.repo_group_id)))
+FROM (data.repo r
+  JOIN data.repo_groups rg ON ((rg.repo_group_id = r.repo_group_id)))
 ORDER BY rg.rg_name"""
 
 # ---------------------------------------------------------------------------
@@ -100,8 +100,8 @@ SELECT repo.repo_id,
     commits.cmt_committer_date,
     count(commits.cmt_id) AS num_of_commits,
     count(DISTINCT commits.cmt_committer_raw_email) AS num_of_unique_committers
-FROM (augur_data.commits
-    LEFT JOIN augur_data.repo ON ((repo.repo_id = commits.repo_id)))
+FROM (data.commits
+    LEFT JOIN data.repo ON ((repo.repo_id = commits.repo_id)))
 GROUP BY repo.repo_id, repo.repo_name, commits.cmt_committer_date
 ORDER BY repo.repo_id, commits.cmt_committer_date"""
 
@@ -111,7 +111,7 @@ ORDER BY repo.repo_id, commits.cmt_committer_date"""
 _API_GET_ALL_REPOS_COMMITS = """\
 SELECT commits.repo_id,
     count(DISTINCT commits.cmt_commit_hash) AS commits_all_time
-FROM augur_data.commits
+FROM data.commits
 GROUP BY commits.repo_id"""
 
 # ---------------------------------------------------------------------------
@@ -120,7 +120,7 @@ GROUP BY commits.repo_id"""
 _API_GET_ALL_REPOS_ISSUES = """\
 SELECT issues.repo_id,
     count(*) AS issues_all_time
-FROM augur_data.issues
+FROM data.issues
 WHERE (issues.pull_request IS NULL)
 GROUP BY issues.repo_id"""
 
@@ -140,8 +140,8 @@ SELECT a.id AS cntrb_id,
             commits.repo_id,
             'commit'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.commits
-             LEFT JOIN augur_data.contributors ON (((contributors.cntrb_id)::text = (commits.cmt_ght_author_id)::text)))
+           FROM (data.commits
+             LEFT JOIN data.contributors ON (((contributors.cntrb_id)::text = (commits.cmt_ght_author_id)::text)))
           GROUP BY commits.cmt_commit_hash, commits.cmt_ght_author_id, commits.repo_id, commits.cmt_author_timestamp, 'commit'::text, contributors.cntrb_login
         UNION ALL
          SELECT issues.reporter_id AS id,
@@ -149,8 +149,8 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_opened'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.issues
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
+           FROM (data.issues
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
           WHERE (issues.pull_request IS NULL)
         UNION ALL
          SELECT pull_request_events.cntrb_id AS id,
@@ -158,9 +158,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_closed'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
           WHERE ((pull_requests.pull_request_id = pull_request_events.pull_request_id) AND (pull_requests.pr_merged_at IS NULL) AND ((pull_request_events.action)::text = 'closed'::text))
         UNION ALL
          SELECT pull_request_events.cntrb_id AS id,
@@ -168,9 +168,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_merged'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
           WHERE ((pull_requests.pull_request_id = pull_request_events.pull_request_id) AND ((pull_request_events.action)::text = 'merged'::text))
         UNION ALL
          SELECT issue_events.cntrb_id AS id,
@@ -178,9 +178,9 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_closed'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.issues,
-            (augur_data.issue_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
+           FROM data.issues,
+            (data.issue_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
           WHERE ((issues.issue_id = issue_events.issue_id) AND (issues.pull_request IS NULL) AND ((issue_events.action)::text = 'closed'::text))
         UNION ALL
          SELECT pull_request_reviews.cntrb_id AS id,
@@ -188,9 +188,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             ('pull_request_review_'::text || (pull_request_reviews.pr_review_state)::text) AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_reviews
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_reviews.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_reviews
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_reviews.cntrb_id)))
           WHERE (pull_requests.pull_request_id = pull_request_reviews.pull_request_id)
         UNION ALL
          SELECT pull_requests.pr_augur_contributor_id AS id,
@@ -198,18 +198,18 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_open'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.pull_requests
-             LEFT JOIN augur_data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
+           FROM (data.pull_requests
+             LEFT JOIN data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
         UNION ALL
          SELECT message.cntrb_id AS id,
             message.msg_timestamp AS created_at,
             pull_requests.repo_id,
             'pull_request_comment'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            augur_data.pull_request_message_ref,
-            (augur_data.message
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+           FROM data.pull_requests,
+            data.pull_request_message_ref,
+            (data.message
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
           WHERE ((pull_request_message_ref.pull_request_id = pull_requests.pull_request_id) AND (pull_request_message_ref.msg_id = message.msg_id))
         UNION ALL
          SELECT issues.reporter_id AS id,
@@ -217,12 +217,12 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_comment'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.issues,
-            augur_data.issue_message_ref,
-            (augur_data.message
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+           FROM data.issues,
+            data.issue_message_ref,
+            (data.message
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
           WHERE ((issue_message_ref.msg_id = message.msg_id) AND (issues.issue_id = issue_message_ref.issue_id) AND (issues.closed_at <> message.msg_timestamp))) a,
-    augur_data.repo
+    data.repo
   WHERE (a.repo_id = repo.repo_id)
   ORDER BY a.created_at DESC"""
 
@@ -242,8 +242,8 @@ SELECT a.id AS cntrb_id,
             commits.repo_id,
             'commit'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.commits
-             LEFT JOIN augur_data.contributors ON (((contributors.cntrb_id)::text = (commits.cmt_ght_author_id)::text)))
+           FROM (data.commits
+             LEFT JOIN data.contributors ON (((contributors.cntrb_id)::text = (commits.cmt_ght_author_id)::text)))
           GROUP BY commits.cmt_commit_hash, commits.cmt_ght_author_id, commits.repo_id, commits.cmt_author_timestamp, 'commit'::text, contributors.cntrb_login
         UNION ALL
          SELECT issues.reporter_id AS id,
@@ -251,8 +251,8 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_opened'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.issues
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
+           FROM (data.issues
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
           WHERE (issues.pull_request IS NULL)
         UNION ALL
          SELECT pull_request_events.cntrb_id AS id,
@@ -260,9 +260,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_closed'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
           WHERE ((pull_requests.pull_request_id = pull_request_events.pull_request_id) AND (pull_requests.pr_merged_at IS NULL) AND ((pull_request_events.action)::text = 'closed'::text))
         UNION ALL
          SELECT pull_request_events.cntrb_id AS id,
@@ -270,9 +270,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_merged'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_events.cntrb_id)))
           WHERE ((pull_requests.pull_request_id = pull_request_events.pull_request_id) AND ((pull_request_events.action)::text = 'merged'::text))
         UNION ALL
          SELECT issue_events.cntrb_id AS id,
@@ -280,9 +280,9 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_closed'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.issues,
-            (augur_data.issue_events
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
+           FROM data.issues,
+            (data.issue_events
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
           WHERE ((issues.issue_id = issue_events.issue_id) AND (issues.pull_request IS NULL) AND ((issue_events.action)::text = 'closed'::text))
         UNION ALL
          SELECT pull_request_reviews.cntrb_id AS id,
@@ -290,9 +290,9 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             ('pull_request_review_'::text || (pull_request_reviews.pr_review_state)::text) AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            (augur_data.pull_request_reviews
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = pull_request_reviews.cntrb_id)))
+           FROM data.pull_requests,
+            (data.pull_request_reviews
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = pull_request_reviews.cntrb_id)))
           WHERE (pull_requests.pull_request_id = pull_request_reviews.pull_request_id)
         UNION ALL
          SELECT pull_requests.pr_augur_contributor_id AS id,
@@ -300,18 +300,18 @@ SELECT a.id AS cntrb_id,
             pull_requests.repo_id,
             'pull_request_open'::text AS action,
             contributors.cntrb_login AS login
-           FROM (augur_data.pull_requests
-             LEFT JOIN augur_data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
+           FROM (data.pull_requests
+             LEFT JOIN data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
         UNION ALL
          SELECT message.cntrb_id AS id,
             message.msg_timestamp AS created_at,
             pull_requests.repo_id,
             'pull_request_comment'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.pull_requests,
-            augur_data.pull_request_message_ref,
-            (augur_data.message
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+           FROM data.pull_requests,
+            data.pull_request_message_ref,
+            (data.message
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
           WHERE ((pull_request_message_ref.pull_request_id = pull_requests.pull_request_id) AND (pull_request_message_ref.msg_id = message.msg_id))
         UNION ALL
          SELECT issues.reporter_id AS id,
@@ -319,12 +319,12 @@ SELECT a.id AS cntrb_id,
             issues.repo_id,
             'issue_comment'::text AS action,
             contributors.cntrb_login AS login
-           FROM augur_data.issues,
-            augur_data.issue_message_ref,
-            (augur_data.message
-             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+           FROM data.issues,
+            data.issue_message_ref,
+            (data.message
+             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
           WHERE ((issue_message_ref.msg_id = message.msg_id) AND (issues.issue_id = issue_message_ref.issue_id) AND (issues.closed_at <> message.msg_timestamp))) a,
-    augur_data.repo
+    data.repo
   WHERE (a.repo_id = repo.repo_id)
   ORDER BY a.created_at DESC"""
 
@@ -367,13 +367,13 @@ SELECT x.cntrb_id,
                             'issue_opened'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM ((augur_data.issues
-                             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
+                           FROM ((data.issues
+                             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issues.reporter_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           WHERE (issues.pull_request IS NULL)
@@ -385,13 +385,13 @@ SELECT x.cntrb_id,
                             'commit'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM ((augur_data.commits
-                             LEFT JOIN augur_data.contributors ON (((contributors.cntrb_canonical)::text = (commits.cmt_author_email)::text)))
+                           FROM ((data.commits
+                             LEFT JOIN data.contributors ON (((contributors.cntrb_canonical)::text = (commits.cmt_author_email)::text)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           GROUP BY commits.repo_id, canonical_full_names.canonical_email, canonical_full_names.canonical_id, commits.cmt_author_date, contributors.cntrb_full_name, contributors.cntrb_login
@@ -402,15 +402,15 @@ SELECT x.cntrb_id,
                             'commit_comment'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM augur_data.commit_comment_ref,
-                            augur_data.commits,
-                            ((augur_data.message
-                             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+                           FROM data.commit_comment_ref,
+                            data.commits,
+                            ((data.message
+                             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           WHERE ((commits.cmt_id = commit_comment_ref.cmt_id) AND (commit_comment_ref.msg_id = message.msg_id))
@@ -422,14 +422,14 @@ SELECT x.cntrb_id,
                             'issue_closed'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM augur_data.issues,
-                            ((augur_data.issue_events
-                             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
+                           FROM data.issues,
+                            ((data.issue_events
+                             LEFT JOIN data.contributors ON ((contributors.cntrb_id = issue_events.cntrb_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           WHERE ((issues.issue_id = issue_events.issue_id) AND (issues.pull_request IS NULL) AND (issue_events.cntrb_id IS NOT NULL) AND ((issue_events.action)::text = 'closed'::text))
@@ -441,13 +441,13 @@ SELECT x.cntrb_id,
                             'open_pull_request'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM ((augur_data.pull_requests
-                             LEFT JOIN augur_data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
+                           FROM ((data.pull_requests
+                             LEFT JOIN data.contributors ON ((pull_requests.pr_augur_contributor_id = contributors.cntrb_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           GROUP BY pull_requests.pr_augur_contributor_id, pull_requests.repo_id, pull_requests.pr_created_at, contributors.cntrb_full_name, contributors.cntrb_login
@@ -458,15 +458,15 @@ SELECT x.cntrb_id,
                             'pull_request_comment'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM augur_data.pull_requests,
-                            augur_data.pull_request_message_ref,
-                            ((augur_data.message
-                             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+                           FROM data.pull_requests,
+                            data.pull_request_message_ref,
+                            ((data.message
+                             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           WHERE ((pull_request_message_ref.pull_request_id = pull_requests.pull_request_id) AND (pull_request_message_ref.msg_id = message.msg_id))
@@ -478,20 +478,20 @@ SELECT x.cntrb_id,
                             'issue_comment'::text AS action,
                             contributors.cntrb_full_name AS full_name,
                             contributors.cntrb_login AS login
-                           FROM augur_data.issues,
-                            augur_data.issue_message_ref,
-                            ((augur_data.message
-                             LEFT JOIN augur_data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
+                           FROM data.issues,
+                            data.issue_message_ref,
+                            ((data.message
+                             LEFT JOIN data.contributors ON ((contributors.cntrb_id = message.cntrb_id)))
                              LEFT JOIN ( SELECT DISTINCT ON (contributors_1.cntrb_canonical) contributors_1.cntrb_full_name,
                                     contributors_1.cntrb_canonical AS canonical_email,
                                     contributors_1.data_collection_date,
                                     contributors_1.cntrb_id AS canonical_id
-                                   FROM augur_data.contributors contributors_1
+                                   FROM data.contributors contributors_1
                                   WHERE ((contributors_1.cntrb_canonical)::text = (contributors_1.cntrb_email)::text)
                                   ORDER BY contributors_1.cntrb_canonical) canonical_full_names ON (((canonical_full_names.canonical_email)::text = (contributors.cntrb_canonical)::text)))
                           WHERE ((issue_message_ref.msg_id = message.msg_id) AND (issues.issue_id = issue_message_ref.issue_id) AND (issues.pull_request_id = NULL::bigint))
                           GROUP BY issues.reporter_id, issues.repo_id, message.msg_timestamp, contributors.cntrb_full_name, contributors.cntrb_login) a,
-                    augur_data.repo
+                    data.repo
                   WHERE ((a.id IS NOT NULL) AND (a.repo_id = repo.repo_id))
                   GROUP BY a.id, a.repo_id, a.action, a.created_at, repo.repo_name, a.full_name, a.login
                   ORDER BY a.id) b
@@ -512,8 +512,8 @@ SELECT
     pre.node_id AS node_id
 FROM
     (
-      augur_data.pull_requests pr
-      LEFT JOIN augur_data.pull_request_events pre ON (
+      data.pull_requests pr
+      LEFT JOIN data.pull_request_events pre ON (
         (
           ( pr.pull_request_id = pre.pull_request_id )
           AND (
@@ -534,22 +534,22 @@ SELECT pr.pull_request_id,
     m.msg_cntrb_id,
     pr.pr_created_at,
     pr.pr_closed_at
-  FROM (augur_data.pull_requests pr
+  FROM (data.pull_requests pr
     LEFT JOIN ( SELECT prr.pull_request_id,
             m_1.msg_timestamp,
             m_1.cntrb_id AS msg_cntrb_id
-          FROM augur_data.pull_request_review_message_ref prrmr,
-            augur_data.pull_requests pr_1,
-            augur_data.message m_1,
-            augur_data.pull_request_reviews prr
+          FROM data.pull_request_review_message_ref prrmr,
+            data.pull_requests pr_1,
+            data.message m_1,
+            data.pull_request_reviews prr
           WHERE ((prrmr.pr_review_id = prr.pr_review_id) AND (prrmr.msg_id = m_1.msg_id) AND (prr.pull_request_id = pr_1.pull_request_id))
         UNION
         SELECT prmr.pull_request_id,
             m_1.msg_timestamp,
             m_1.cntrb_id AS msg_cntrb_id
-          FROM augur_data.pull_request_message_ref prmr,
-            augur_data.pull_requests pr_1,
-            augur_data.message m_1
+          FROM data.pull_request_message_ref prmr,
+            data.pull_requests pr_1,
+            data.message m_1
           WHERE ((prmr.pull_request_id = pr_1.pull_request_id) AND (prmr.msg_id = m_1.msg_id))) m ON ((m.pull_request_id = pr.pull_request_id)))"""
 
 # ---------------------------------------------------------------------------
@@ -560,9 +560,9 @@ SELECT a.login_name,
     a.user_id,
     b.group_id,
     c.repo_id
-  FROM augur_operations.users a,
-    augur_operations.user_groups b,
-    augur_operations.user_repos c
+  FROM operations.users a,
+    operations.user_groups b,
+    operations.user_repos c
   WHERE ((a.user_id = b.user_id) AND (b.group_id = c.group_id))
   ORDER BY a.user_id"""
 
@@ -611,9 +611,9 @@ SELECT repo.repo_id,
     master_merged_counts.lines_removed,
     all_commit_counts.commit_count,
     master_merged_counts.file_count
-  FROM augur_data.repo,
-    augur_data.repo_groups,
-    ((((augur_data.pull_requests
+  FROM data.repo,
+    data.repo_groups,
+    ((((data.pull_requests
     LEFT JOIN ( SELECT pull_requests_1.pull_request_id,
             count(*) FILTER (WHERE ((pull_request_events.action)::text = 'assigned'::text)) AS assigned_count,
             count(*) FILTER (WHERE ((pull_request_events.action)::text = 'review_requested'::text)) AS review_requested_count,
@@ -631,36 +631,36 @@ SELECT repo.repo_id,
             count(DISTINCT message.msg_timestamp) AS comment_count,
             max(message.msg_timestamp) AS last_response_time,
             ((max(message.msg_timestamp) - min(message.msg_timestamp)) / (count(DISTINCT message.msg_timestamp))::double precision) AS average_time_between_responses
-          FROM augur_data.pull_request_events,
-            augur_data.pull_requests pull_requests_1,
-            augur_data.repo repo_1,
-            augur_data.pull_request_message_ref,
-            augur_data.message
+          FROM data.pull_request_events,
+            data.pull_requests pull_requests_1,
+            data.repo repo_1,
+            data.pull_request_message_ref,
+            data.message
           WHERE ((repo_1.repo_id = pull_requests_1.repo_id) AND (pull_requests_1.pull_request_id = pull_request_events.pull_request_id) AND (pull_requests_1.pull_request_id = pull_request_message_ref.pull_request_id) AND (pull_request_message_ref.msg_id = message.msg_id))
           GROUP BY pull_requests_1.pull_request_id) response_times ON ((pull_requests.pull_request_id = response_times.pull_request_id)))
     LEFT JOIN ( SELECT pull_request_commits.pull_request_id,
             count(DISTINCT pull_request_commits.pr_cmt_sha) AS commit_count
-          FROM augur_data.pull_request_commits,
-            augur_data.pull_requests pull_requests_1,
-            augur_data.pull_request_meta
+          FROM data.pull_request_commits,
+            data.pull_requests pull_requests_1,
+            data.pull_request_meta
           WHERE ((pull_requests_1.pull_request_id = pull_request_commits.pull_request_id) AND (pull_requests_1.pull_request_id = pull_request_meta.pull_request_id) AND ((pull_request_commits.pr_cmt_sha)::text <> (pull_requests_1.pr_merge_commit_sha)::text) AND ((pull_request_commits.pr_cmt_sha)::text <> (pull_request_meta.pr_sha)::text))
           GROUP BY pull_request_commits.pull_request_id) all_commit_counts ON ((pull_requests.pull_request_id = all_commit_counts.pull_request_id)))
     LEFT JOIN ( SELECT max(pull_request_meta.pr_repo_meta_id) AS max,
             pull_request_meta.pull_request_id,
             pull_request_meta.pr_head_or_base,
             pull_request_meta.pr_src_meta_label
-          FROM augur_data.pull_requests pull_requests_1,
-            augur_data.pull_request_meta
+          FROM data.pull_requests pull_requests_1,
+            data.pull_request_meta
           WHERE ((pull_requests_1.pull_request_id = pull_request_meta.pull_request_id) AND ((pull_request_meta.pr_head_or_base)::text = 'base'::text))
           GROUP BY pull_request_meta.pull_request_id, pull_request_meta.pr_head_or_base, pull_request_meta.pr_src_meta_label) base_labels ON ((base_labels.pull_request_id = all_commit_counts.pull_request_id)))
     LEFT JOIN ( SELECT sum(commits.cmt_added) AS lines_added,
             sum(commits.cmt_removed) AS lines_removed,
             pull_request_commits.pull_request_id,
             count(DISTINCT commits.cmt_filename) AS file_count
-          FROM augur_data.pull_request_commits,
-            augur_data.commits,
-            augur_data.pull_requests pull_requests_1,
-            augur_data.pull_request_meta
+          FROM data.pull_request_commits,
+            data.commits,
+            data.pull_requests pull_requests_1,
+            data.pull_request_meta
           WHERE (((commits.cmt_commit_hash)::text = (pull_request_commits.pr_cmt_sha)::text) AND (pull_requests_1.pull_request_id = pull_request_commits.pull_request_id) AND (pull_requests_1.pull_request_id = pull_request_meta.pull_request_id) AND (commits.repo_id = pull_requests_1.repo_id) AND ((commits.cmt_commit_hash)::text <> (pull_requests_1.pr_merge_commit_sha)::text) AND ((commits.cmt_commit_hash)::text <> (pull_request_meta.pr_sha)::text))
           GROUP BY pull_request_commits.pull_request_id) master_merged_counts ON ((base_labels.pull_request_id = master_merged_counts.pull_request_id)))
   WHERE ((repo.repo_group_id = repo_groups.repo_group_id) AND (repo.repo_id = pull_requests.repo_id))
@@ -681,8 +681,8 @@ SELECT
     ie.node_id as node_id
 FROM
     (
-      augur_data.issues i
-      LEFT JOIN augur_data.issue_events ie ON (
+      data.issues i
+      LEFT JOIN data.issue_events ie ON (
         (
           ( i.issue_id = ie.issue_id )
           AND (
@@ -702,7 +702,7 @@ SELECT e.repo_id,
     e.programming_language,
     e.code_lines,
     e.files
-  FROM augur_data.repo,
+  FROM data.repo,
     ( SELECT d.repo_id,
             d.programming_language,
             sum(d.code_lines) AS code_lines,
@@ -710,10 +710,10 @@ SELECT e.repo_id,
           FROM ( SELECT repo_labor.repo_id,
                     repo_labor.programming_language,
                     repo_labor.code_lines
-                  FROM augur_data.repo_labor,
+                  FROM data.repo_labor,
                     ( SELECT repo_labor_1.repo_id,
                             max(repo_labor_1.data_collection_date) AS last_collected
-                          FROM augur_data.repo_labor repo_labor_1
+                          FROM data.repo_labor repo_labor_1
                           GROUP BY repo_labor_1.repo_id) recent
                   WHERE ((repo_labor.repo_id = recent.repo_id) AND (repo_labor.data_collection_date > (recent.last_collected - ((5)::double precision * '00:01:00'::interval))))) d
           GROUP BY d.repo_id, d.programming_language) e
@@ -729,95 +729,95 @@ MATERIALIZED_VIEWS: list[MaterializedView] = [
     # --- View 1: legacy DDL (augur_full.sql), no unique index ---
     MaterializedView(
         name="issue_reporter_created_at",
-        schema="augur_data",
+        schema="data",
         sql=_ISSUE_REPORTER_CREATED_AT,
         unique_index_columns=(),  # only a non-unique btree on repo_id
     ),
     # --- Views 2-6: from migration 4, indexes from migration 25 ---
     MaterializedView(
         name="api_get_all_repo_prs",
-        schema="augur_data",
+        schema="data",
         sql=_API_GET_ALL_REPO_PRS,
         unique_index_columns=("repo_id",),
     ),
     MaterializedView(
         name="explorer_entry_list",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_ENTRY_LIST,
         unique_index_columns=("repo_id",),
     ),
     MaterializedView(
         name="explorer_commits_and_committers_daily_count",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_COMMITS_AND_COMMITTERS_DAILY_COUNT,
         unique_index_columns=("repo_id", "cmt_committer_date",),
     ),
     MaterializedView(
         name="api_get_all_repos_commits",
-        schema="augur_data",
+        schema="data",
         sql=_API_GET_ALL_REPOS_COMMITS,
         unique_index_columns=("repo_id",),
     ),
     MaterializedView(
         name="api_get_all_repos_issues",
-        schema="augur_data",
+        schema="data",
         sql=_API_GET_ALL_REPOS_ISSUES,
         unique_index_columns=("repo_id",),
     ),
     # --- Views 6-8: from migration 25, recreated ---
     MaterializedView(
         name="augur_new_contributors",
-        schema="augur_data",
+        schema="data",
         sql=_AUGUR_NEW_CONTRIBUTORS,
         unique_index_columns=("cntrb_id", "created_at", "repo_id", "repo_name", "login", "rank",),
     ),
     MaterializedView(
         name="explorer_contributor_actions",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_CONTRIBUTOR_ACTIONS,
         unique_index_columns=("cntrb_id", "created_at", "repo_id", "action", "repo_name", "login", "rank",),
     ),
     MaterializedView(
         name="explorer_new_contributors",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_NEW_CONTRIBUTORS,
         unique_index_columns=("cntrb_id", "created_at", "month", "year", "repo_id", "full_name", "repo_name", "login", "rank",),
     ),
     # --- Views 9-13: from migration 26 ---
     MaterializedView(
         name="explorer_pr_assignments",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_PR_ASSIGNMENTS,
         unique_index_columns=("pull_request_id", "id", "node_id",),
     ),
     MaterializedView(
         name="explorer_pr_response",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_PR_RESPONSE,
         unique_index_columns=("pull_request_id", "id", "cntrb_id", "msg_cntrb_id", "msg_timestamp",),
     ),
     MaterializedView(
         name="explorer_user_repos",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_USER_REPOS,
         unique_index_columns=("login_name", "user_id", "group_id", "repo_id",),
     ),
     MaterializedView(
         name="explorer_pr_response_times",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_PR_RESPONSE_TIMES,
         unique_index_columns=("repo_id", "pr_src_id", "pr_src_meta_label",),
     ),
     MaterializedView(
         name="explorer_issue_assignments",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_ISSUE_ASSIGNMENTS,
         unique_index_columns=("issue_id", "id", "node_id",),
     ),
     # --- View 15: from migration 28 ---
     MaterializedView(
         name="explorer_repo_languages",
-        schema="augur_data",
+        schema="data",
         sql=_EXPLORER_REPO_LANGUAGES,
         unique_index_columns=("repo_id", "programming_language",),
     ),
