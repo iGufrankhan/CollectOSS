@@ -62,21 +62,6 @@ def start(ctx, disable_collection, development, pidfile, port):
     signal.signal(signal.SIGTERM, manager.shutdown_signal_handler)
     signal.signal(signal.SIGINT, manager.shutdown_signal_handler)
 
-
-    collect_env_variables(logger)
-
-
-    check_init_schema()
-    check_update_schema()
-
-    setup_facade_directory(logger)
-
-    merge_config(ctx.obj.engine, logger)
-
-    warn_import_repos(logger)
-
-    print_platform_information(logger)
-
     try:
         if SystemEnv.get('COLLECTOSS_DOCKER_DEPLOY') != "1":
             raise_open_file_limit(100000)
