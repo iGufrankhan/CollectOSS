@@ -8,4 +8,4 @@ def mask_key(key: str, first: int = 6, last: int = 3, stars: int = 6) -> str:
             return "*" * stars
         return f"{key[:first]}{'*' * stars}{key[-last:]}"
     else:
-        return ("*" * stars) + str(type(key))
+        return "*" * stars + f" Type: {str(type(key))}"
