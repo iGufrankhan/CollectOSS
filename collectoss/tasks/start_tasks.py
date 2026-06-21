@@ -355,17 +355,19 @@ def retry_errored_repos(self):
         #Get list of enabled phases 
         enabled_phase_names = get_enabled_phase_names_from_config_session(session, logger)
 
+        query_limit = 1_000_000
+
         if primary_repo_collect_phase.__name__ in enabled_phase_names:
-            total_new_repos += len(get_newly_added_repos(session, logger, "core"))
+            total_new_repos += len(get_newly_added_repos(session, query_limit, "core"))
     
         if secondary_repo_collect_phase.__name__ in enabled_phase_names:
-            total_new_repos += len(get_newly_added_repos(session, logger, "secondary"))
+            total_new_repos += len(get_newly_added_repos(session, query_limit, "secondary"))
 
         if facade_phase.__name__ in enabled_phase_names:
-            total_new_repos += len(get_newly_added_repos(session, logger, "facade"))
+            total_new_repos += len(get_newly_added_repos(session, query_limit, "facade"))
 
         if machine_learning_phase.__name__ in enabled_phase_names:
-            total_new_repos += len(get_newly_added_repos(session, logger, "ml"))
+            total_new_repos += len(get_newly_added_repos(session, query_limit, "ml"))
 
     if total_new_repos == 0:
 
