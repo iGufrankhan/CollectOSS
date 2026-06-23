@@ -366,7 +366,7 @@ def retry_errored_repos(self):
         if facade_phase.__name__ in enabled_phase_names:
             total_new_repos += len(get_newly_added_repos(session, query_limit, "facade"))
 
-        if machine_learning_phase.__name__ in enabled_phase_names:
+        if not RUNNING_DOCKER and machine_learning_phase.__name__ in enabled_phase_names:
             total_new_repos += len(get_newly_added_repos(session, query_limit, "ml"))
 
     if total_new_repos == 0:
