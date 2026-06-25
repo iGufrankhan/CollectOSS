@@ -3,7 +3,7 @@ import time
 import httpx
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception, RetryError
 from keyman.KeyClient import KeyClient
-from collectoss.tasks.github.util.github_data_access import RatelimitException, NotAuthorizedException, ResourceGoneException, UrlNotFoundException
+from collectoss.tasks.github.util.github_data_access import RatelimitException, NotAuthorizedException, ResourceGoneException
 from collectoss.util.keys import mask_key
 
 URL = "https://api.github.com/graphql"
@@ -103,9 +103,6 @@ class GithubGraphQlDataAccess:
             # There are cases with PR files, PR commits, and messages where the parent object is removed after 
             # It is collected, leading the the associated URL for those objects to return a 404. 
             # This is not an issue that is really an Exception. It is more of a nominal signal. 
-            
-            if response.status_code == 404:
-                raise UrlNotFoundException(f"Could not find {url}")
             
             if response.status_code == 401:
                 raise NotAuthorizedException(f"Could not authorize with the github api using key: {mask_key(self.key)}")
